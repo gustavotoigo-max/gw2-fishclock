@@ -1,0 +1,24 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35707.178 d17.12
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nahar.FishClock", "Nahar.FishClock\Nahar.FishClock.csproj", "{5FFC5641-B7EB-4D65-9151-2309C71ED95D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F42D8531-7D1D-4B59-B435-7D8ACCD60158}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5FFC5641-B7EB-4D65-9151-2309C71ED95D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5FFC5641-B7EB-4D65-9151-2309C71ED95D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5FFC5641-B7EB-4D65-9151-2309C71ED95D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5FFC5641-B7EB-4D65-9151-2309C71ED95D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
