@@ -1,3 +1,60 @@
+#define FISHCLOCK_DIAGNOSTIC_LOAD_ONLY 1
+
+#if FISHCLOCK_DIAGNOSTIC_LOAD_ONLY
+
+#include "shared.hpp"
+
+namespace addon
+{
+    AddonAPI_t* Api = nullptr;
+
+    void Log(ELogLevel level, const char* message)
+    {
+        if (Api == nullptr || Api->Log == nullptr)
+        {
+            return;
+        }
+
+        Api->Log(level, LogChannel, message);
+    }
+}
+
+namespace
+{
+    AddonDefinition_t AddonDefinition{};
+
+    void AddonLoad(AddonAPI_t* api)
+    {
+        addon::Api = api;
+        addon::Log(LOGL_INFO, "diagnostic load-only build loaded");
+    }
+
+    void AddonUnload()
+    {
+        addon::Log(LOGL_INFO, "diagnostic load-only build unloaded");
+        addon::Api = nullptr;
+    }
+}
+
+extern "C" __declspec(dllexport) AddonDefinition_t* GetAddonDef()
+{
+    AddonDefinition.Signature = addon::Signature;
+    AddonDefinition.APIVersion = NEXUS_API_VERSION;
+    AddonDefinition.Name = addon::Name;
+    AddonDefinition.Version = AddonVersion_t{0, 1, 1, 0};
+    AddonDefinition.Author = addon::Author;
+    AddonDefinition.Description = "FishClock diagnostic load-only build.";
+    AddonDefinition.Load = AddonLoad;
+    AddonDefinition.Unload = AddonUnload;
+    AddonDefinition.Flags = AF_None;
+    AddonDefinition.Provider = UP_None;
+    AddonDefinition.UpdateLink = addon::UpdateLink;
+
+    return &AddonDefinition;
+}
+
+#else
+
 #include "shared.hpp"
 
 #include <imgui.h>
@@ -421,3 +478,5 @@ extern "C" __declspec(dllexport) AddonDefinition_t* GetAddonDef()
 
     return &AddonDefinition;
 }
+
+#endif
