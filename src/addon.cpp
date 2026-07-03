@@ -321,14 +321,21 @@ namespace
             UpdateTimer = 1.0f;
         }
 
+        const bool ctrlDown = ImGui::GetIO().KeyCtrl;
+
         ImGui::SetNextWindowPos(WindowPosition, ImGuiCond_Always);
         ImGui::SetNextWindowBgAlpha(0.35f);
 
-        constexpr ImGuiWindowFlags flags =
+        ImGuiWindowFlags flags =
             ImGuiWindowFlags_NoTitleBar |
             ImGuiWindowFlags_NoResize |
             ImGuiWindowFlags_AlwaysAutoResize |
             ImGuiWindowFlags_NoSavedSettings;
+
+        if (!ctrlDown)
+        {
+            flags |= ImGuiWindowFlags_NoInputs;
+        }
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8.0f, 5.0f));
 
@@ -337,7 +344,6 @@ namespace
             ImGui::TextColored(DisplayColor, "%s", DisplayText.c_str());
 
             const bool hovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);
-            const bool ctrlDown = ImGui::GetIO().KeyCtrl;
 
             if (!IsDragging && hovered && ctrlDown && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
             {
