@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.24)
 
-project(GW2NexusAddonTemplate
+project(FishClock
     VERSION 0.1.0.0
     LANGUAGES CXX
 )
@@ -59,7 +59,7 @@ else()
 endif()
 
 set_target_properties(gw2_nexus_addon PROPERTIES
-    OUTPUT_NAME "gw2_nexus_addon_template"
+    OUTPUT_NAME "fish_clock"
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
     LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )

@@ -1,11 +1,11 @@
-# GW2 Nexus Addon Template
+# FishClock
 
-Template minimo para criar addons do [Nexus](https://raidcore.gg/Nexus) para **Guild Wars 2** usando CMake, Visual Studio 2022, Nexus API e Dear ImGui.
+Addon para [Nexus](https://raidcore.gg/Nexus) no **Guild Wars 2**, criado a partir do template `nexus-template`.
 
 ## O que vem pronto
 
 - `src/addon.cpp` com `GetAddonDef`, `Load`, `Unload`, render callback e options callback.
-- `include/shared.hpp` com metadados do addon.
+- `include/shared.hpp` com metadados do FishClock.
 - `CMakeLists.txt` para gerar uma DLL x64.
 - `CMakePresets.json` com presets Debug e Release para Visual Studio 2022.
 - `build.ps1` para configurar e compilar via PowerShell.
@@ -38,16 +38,9 @@ powershell -ExecutionPolicy Bypass -File .\build.ps1 -Configuration Release
 A DLL sera gerada em:
 
 ```text
-build/msvc-release/bin/Release/gw2_nexus_addon_template.dll
+build/msvc-release/bin/Release/fish_clock.dll
 ```
 
-## Criando um addon real
+## Proximos passos
 
-Antes de publicar um addon baseado neste template:
-
-1. Altere `project(...)` e `OUTPUT_NAME` em `CMakeLists.txt`.
-2. Altere `Signature`, `Name`, `LogChannel`, `Description` e `UpdateLink` em `include/shared.hpp`.
-3. Altere `AddonDefinition.Version` em `src/addon.cpp`.
-4. Substitua a UI minima em `Render()` e `RenderOptions()`.
-
-Use uma assinatura unica para cada addon. O valor atual e apenas um placeholder do template.
+Implementar a logica especifica do FishClock em `src/addon.cpp`.

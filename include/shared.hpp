@@ -4,11 +4,11 @@
 
 namespace addon
 {
-    inline constexpr uint32_t Signature = 0x47573254; // "GW2T"; change for each real addon.
-    inline constexpr const char* Name = "GW2 Nexus Addon Template";
-    inline constexpr const char* LogChannel = "GW2AddonTemplate";
+    inline constexpr uint32_t Signature = 0xF15C10CC; // FishClock placeholder; keep unique per addon.
+    inline constexpr const char* Name = "FishClock";
+    inline constexpr const char* LogChannel = "FishClock";
     inline constexpr const char* Author = "Nahar.5349";
-    inline constexpr const char* Description = "Minimal Nexus addon template for Guild Wars 2.";
+    inline constexpr const char* Description = "FishClock addon for Guild Wars 2.";
     inline constexpr const char* UpdateLink = "";
 
     extern AddonAPI_t* Api;

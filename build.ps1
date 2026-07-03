@@ -21,7 +21,7 @@ if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 & $cmake --build --preset $buildPreset
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-$dll = Join-Path $PSScriptRoot "build\$preset\bin\$Configuration\gw2_nexus_addon_template.dll"
+$dll = Join-Path $PSScriptRoot "build\$preset\bin\$Configuration\fish_clock.dll"
 Write-Host ""
 Write-Host "Build finalizado:"
 Write-Host $dll

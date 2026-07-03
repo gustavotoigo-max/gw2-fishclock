@@ -37,7 +37,7 @@ namespace
     {
         ConfigureImGui();
 
-        ImGui::Checkbox("Show template window", &IsWindowVisible);
+        ImGui::Checkbox("Show FishClock window", &IsWindowVisible);
     }
 
     void Render()
@@ -51,8 +51,8 @@ namespace
 
         if (ImGui::Begin(addon::Name, &IsWindowVisible))
         {
-            ImGui::TextUnformatted("Nexus addon template loaded.");
-            ImGui::TextUnformatted("Replace this window with the next addon's UI.");
+            ImGui::TextUnformatted("FishClock loaded.");
+            ImGui::TextUnformatted("Addon behavior will be implemented next.");
         }
 
         ImGui::End();
