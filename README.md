@@ -1,6 +1,6 @@
 # FishClock
 
-Addon para [Nexus](https://raidcore.gg/Nexus) no **Guild Wars 2**, criado a partir do template `nexus-template`.
+Addon para [Nexus](https://raidcore.gg/Nexus) no **Guild Wars 2** que mostra o estado de pesca da regiao selecionada e quanto tempo falta para a proxima transicao de dia/noite/dawn/dusk.
 
 ## O que vem pronto
 
@@ -10,6 +10,13 @@ Addon para [Nexus](https://raidcore.gg/Nexus) no **Guild Wars 2**, criado a part
 - `CMakePresets.json` com presets Debug e Release para Visual Studio 2022.
 - `build.ps1` para configurar e compilar via PowerShell.
 - Submodules para Nexus API e Dear ImGui.
+
+## Uso
+
+1. Abra as configuracoes do addon no Nexus.
+2. Escolha a regiao em `Map to monitor`.
+3. O overlay mostra o estado atual e o tempo restante.
+4. Segure `Ctrl` e arraste o overlay para reposicionar.
 
 ## Preparar o repositorio
 
@@ -41,6 +48,6 @@ A DLL sera gerada em:
 build/msvc-release/bin/Release/fish_clock.dll
 ```
 
-## Proximos passos
+## Logica de tempo
 
-Implementar a logica especifica do FishClock em `src/addon.cpp`.
+O FishClock calcula o ciclo diretamente a partir do horario UTC, igual ao addon original do Blish HUD. Nao ha consulta externa: o ciclo de Tyria usa uma janela de 2 horas reais convertida para 24 horas in-game.
