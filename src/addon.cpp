@@ -1,4 +1,5 @@
-#define FISHCLOCK_DIAGNOSTIC_LOAD_ONLY 1
+#define FISHCLOCK_DIAGNOSTIC_LOAD_ONLY 0
+#define FISHCLOCK_DIAGNOSTIC_RENDER_ONLY 1
 
 #if FISHCLOCK_DIAGNOSTIC_LOAD_ONLY
 
@@ -44,6 +45,110 @@ extern "C" __declspec(dllexport) AddonDefinition_t* GetAddonDef()
     AddonDefinition.Version = AddonVersion_t{0, 1, 1, 0};
     AddonDefinition.Author = addon::Author;
     AddonDefinition.Description = "FishClock diagnostic load-only build.";
+    AddonDefinition.Load = AddonLoad;
+    AddonDefinition.Unload = AddonUnload;
+    AddonDefinition.Flags = AF_None;
+    AddonDefinition.Provider = UP_None;
+    AddonDefinition.UpdateLink = addon::UpdateLink;
+
+    return &AddonDefinition;
+}
+
+#elif FISHCLOCK_DIAGNOSTIC_RENDER_ONLY
+
+#include "shared.hpp"
+
+#include <imgui.h>
+
+namespace addon
+{
+    AddonAPI_t* Api = nullptr;
+
+    void Log(ELogLevel level, const char* message)
+    {
+        if (Api == nullptr || Api->Log == nullptr)
+        {
+            return;
+        }
+
+        Api->Log(level, LogChannel, message);
+    }
+}
+
+namespace
+{
+    bool IsWindowVisible = true;
+    AddonDefinition_t AddonDefinition{};
+
+    void ConfigureImGui()
+    {
+        if (addon::Api == nullptr || addon::Api->ImguiContext == nullptr)
+        {
+            return;
+        }
+
+        ImGui::SetCurrentContext(static_cast<ImGuiContext*>(addon::Api->ImguiContext));
+    }
+
+    void Render()
+    {
+        ConfigureImGui();
+
+        if (!IsWindowVisible)
+        {
+            return;
+        }
+
+        ImGui::SetNextWindowBgAlpha(0.35f);
+        if (ImGui::Begin("FishClock Diagnostic", &IsWindowVisible, ImGuiWindowFlags_AlwaysAutoResize))
+        {
+            ImGui::TextUnformatted("FishClock render diagnostic loaded.");
+        }
+
+        ImGui::End();
+    }
+
+    void RenderOptions()
+    {
+        ConfigureImGui();
+        ImGui::Checkbox("Show FishClock diagnostic window", &IsWindowVisible);
+    }
+
+    void AddonLoad(AddonAPI_t* api)
+    {
+        addon::Api = api;
+        addon::Log(LOGL_INFO, "diagnostic render-only build loading");
+
+        if (addon::Api != nullptr && addon::Api->GUI_Register != nullptr)
+        {
+            addon::Api->GUI_Register(RT_Render, Render);
+            addon::Api->GUI_Register(RT_OptionsRender, RenderOptions);
+        }
+
+        addon::Log(LOGL_INFO, "diagnostic render-only build loaded");
+    }
+
+    void AddonUnload()
+    {
+        if (addon::Api != nullptr && addon::Api->GUI_Deregister != nullptr)
+        {
+            addon::Api->GUI_Deregister(Render);
+            addon::Api->GUI_Deregister(RenderOptions);
+        }
+
+        addon::Log(LOGL_INFO, "diagnostic render-only build unloaded");
+        addon::Api = nullptr;
+    }
+}
+
+extern "C" __declspec(dllexport) AddonDefinition_t* GetAddonDef()
+{
+    AddonDefinition.Signature = addon::Signature;
+    AddonDefinition.APIVersion = NEXUS_API_VERSION;
+    AddonDefinition.Name = addon::Name;
+    AddonDefinition.Version = AddonVersion_t{0, 1, 2, 0};
+    AddonDefinition.Author = addon::Author;
+    AddonDefinition.Description = "FishClock diagnostic render-only build.";
     AddonDefinition.Load = AddonLoad;
     AddonDefinition.Unload = AddonUnload;
     AddonDefinition.Flags = AF_None;
