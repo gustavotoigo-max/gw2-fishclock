@@ -24,6 +24,7 @@ endif()
 
 add_library(gw2_nexus_addon SHARED
     src/addon.cpp
+    resources.rc
 )
 
 target_compile_features(gw2_nexus_addon PRIVATE cxx_std_20)

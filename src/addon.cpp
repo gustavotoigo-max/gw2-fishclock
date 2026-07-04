@@ -251,8 +251,11 @@ extern "C" __declspec(dllexport) AddonDefinition_t* GetAddonDef()
 #else
 
 #include "shared.hpp"
+#include "resource.h"
 
 #include <imgui.h>
+
+#include <Windows.h>
 
 #include <array>
 #include <chrono>
@@ -286,6 +289,8 @@ namespace
     float UpdateTimer = 0.0f;
     std::string DisplayText = "Loading FishClock...";
     ImVec4 DisplayColor(1.0f, 1.0f, 1.0f, 1.0f);
+    bool IsTextVisible = true;
+    Texture_t* ToggleTexture = nullptr;
     AddonDefinition_t AddonDefinition{};
 
     enum class Region : int
@@ -336,6 +341,41 @@ namespace
         }
 
         ImGui::SetCurrentContext(static_cast<ImGuiContext*>(addon::Api->ImguiContext));
+    }
+
+    HMODULE GetAddonModule()
+    {
+        HMODULE module = nullptr;
+        if (!GetModuleHandleExA(
+            GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+            reinterpret_cast<LPCSTR>(&GetAddonModule),
+            &module))
+        {
+            return nullptr;
+        }
+
+        return module;
+    }
+
+    void LoadTexture()
+    {
+        if (addon::Api == nullptr || addon::Api->Textures_GetOrCreateFromResource == nullptr)
+        {
+            return;
+        }
+
+        HMODULE module = GetAddonModule();
+        if (module == nullptr)
+        {
+            addon::Log(LOGL_WARNING, "addon module unavailable for texture resource");
+            return;
+        }
+
+        ToggleTexture = addon::Api->Textures_GetOrCreateFromResource("FishClock.Toggle", IDB_FISHCLOCK_TOGGLE, module);
+        if (ToggleTexture == nullptr)
+        {
+            addon::Log(LOGL_WARNING, "failed to load FishClock toggle texture");
+        }
     }
 
     const RegionInfo& GetSelectedRegion()
@@ -390,6 +430,7 @@ namespace
         file << SelectedRegionIndex << '\n';
         file << WindowPosition.x << ' ' << WindowPosition.y << '\n';
         file << (IsWindowVisible ? 1 : 0) << '\n';
+        file << (IsTextVisible ? 1 : 0) << '\n';
     }
 
     void LoadSettings()
@@ -407,9 +448,11 @@ namespace
         }
 
         int visible = 1;
+        int textVisible = 1;
         file >> SelectedRegionIndex;
         file >> WindowPosition.x >> WindowPosition.y;
         file >> visible;
+        file >> textVisible;
 
         if (SelectedRegionIndex < 0 || SelectedRegionIndex >= static_cast<int>(Regions.size()))
         {
@@ -417,6 +460,7 @@ namespace
         }
 
         IsWindowVisible = visible != 0;
+        IsTextVisible = textVisible != 0;
     }
 
     std::tm GetUtcNow()
@@ -519,9 +563,8 @@ namespace
             }
         }
 
-        DisplayText = "[";
-        DisplayText += region.Label;
-        DisplayText += "] ";
+        DisplayText = region.Label;
+        DisplayText += ' ';
         DisplayText += state;
         DisplayText += " - Left: ";
         DisplayText += FormatDuration(realMinutesLeft);
@@ -591,16 +634,33 @@ namespace
             ImGuiWindowFlags_AlwaysAutoResize |
             ImGuiWindowFlags_NoSavedSettings;
 
-        if (!ctrlDown)
-        {
-            flags |= ImGuiWindowFlags_NoInputs;
-        }
-
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8.0f, 5.0f));
 
         if (ImGui::Begin("##FishClockOverlay", &IsWindowVisible, flags))
         {
-            ImGui::TextColored(DisplayColor, "%s", DisplayText.c_str());
+            const ImVec2 buttonSize(28.0f, 28.0f);
+            if (ToggleTexture != nullptr && ToggleTexture->Resource != nullptr)
+            {
+                if (ImGui::ImageButton(ToggleTexture->Resource, buttonSize))
+                {
+                    IsTextVisible = !IsTextVisible;
+                    SaveSettings();
+                }
+            }
+            else
+            {
+                if (ImGui::Button("><", buttonSize))
+                {
+                    IsTextVisible = !IsTextVisible;
+                    SaveSettings();
+                }
+            }
+
+            if (IsTextVisible)
+            {
+                ImGui::SameLine();
+                ImGui::TextColored(DisplayColor, "%s", DisplayText.c_str());
+            }
 
             const bool hovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);
 
@@ -636,6 +696,7 @@ namespace
         addon::Log(LOGL_INFO, "loading");
 
         ConfigureImGui();
+        LoadTexture();
         LoadSettings();
         UpdateFishClock();
 
@@ -658,6 +719,7 @@ namespace
 
         SaveSettings();
         IsDragging = false;
+        ToggleTexture = nullptr;
 
         addon::Log(LOGL_INFO, "unloaded");
         addon::Api = nullptr;

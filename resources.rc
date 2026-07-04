@@ -1,0 +1,3 @@
+#include "include/resource.h"
+
+IDB_FISHCLOCK_TOGGLE PNG "nemo.png"
