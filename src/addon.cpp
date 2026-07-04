@@ -287,6 +287,7 @@ namespace
     ImVec2 WindowPosition(300.0f, 200.0f);
     ImVec2 DragOffset(0.0f, 0.0f);
     float UpdateTimer = 0.0f;
+    float TextureRetryTimer = 0.0f;
     std::string DisplayText = "Loading FishClock...";
     ImVec4 DisplayColor(1.0f, 1.0f, 1.0f, 1.0f);
     bool IsTextVisible = true;
@@ -359,7 +360,21 @@ namespace
 
     void LoadTexture()
     {
-        if (addon::Api == nullptr || addon::Api->Textures_GetOrCreateFromResource == nullptr)
+        if (addon::Api == nullptr)
+        {
+            return;
+        }
+
+        if (addon::Api->Textures_Get != nullptr)
+        {
+            ToggleTexture = addon::Api->Textures_Get("FishClock.Toggle");
+            if (ToggleTexture != nullptr && ToggleTexture->Resource != nullptr)
+            {
+                return;
+            }
+        }
+
+        if (addon::Api->Textures_GetOrCreateFromResource == nullptr)
         {
             return;
         }
@@ -372,9 +387,9 @@ namespace
         }
 
         ToggleTexture = addon::Api->Textures_GetOrCreateFromResource("FishClock.Toggle", IDB_FISHCLOCK_TOGGLE, module);
-        if (ToggleTexture == nullptr)
+        if (ToggleTexture == nullptr || ToggleTexture->Resource == nullptr)
         {
-            addon::Log(LOGL_WARNING, "failed to load FishClock toggle texture");
+            addon::Log(LOGL_DEBUG, "FishClock toggle texture not ready");
         }
     }
 
@@ -623,6 +638,16 @@ namespace
             UpdateTimer = 1.0f;
         }
 
+        if (ToggleTexture == nullptr || ToggleTexture->Resource == nullptr)
+        {
+            TextureRetryTimer -= ImGui::GetIO().DeltaTime;
+            if (TextureRetryTimer <= 0.0f)
+            {
+                LoadTexture();
+                TextureRetryTimer = 0.5f;
+            }
+        }
+
         const bool ctrlDown = ImGui::GetIO().KeyCtrl;
 
         ImGui::SetNextWindowPos(WindowPosition, ImGuiCond_Always);
@@ -639,6 +664,7 @@ namespace
         if (ImGui::Begin("##FishClockOverlay", &IsWindowVisible, flags))
         {
             const ImVec2 buttonSize(28.0f, 28.0f);
+            const float initialY = ImGui::GetCursorPosY();
             if (ToggleTexture != nullptr && ToggleTexture->Resource != nullptr)
             {
                 if (ImGui::ImageButton(ToggleTexture->Resource, buttonSize))
@@ -659,6 +685,8 @@ namespace
             if (IsTextVisible)
             {
                 ImGui::SameLine();
+                const float textHeight = ImGui::GetTextLineHeight();
+                ImGui::SetCursorPosY(initialY + ((buttonSize.y - textHeight) * 0.5f));
                 ImGui::TextColored(DisplayColor, "%s", DisplayText.c_str());
             }
 
