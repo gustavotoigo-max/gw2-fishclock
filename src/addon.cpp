@@ -664,10 +664,27 @@ namespace
         if (ImGui::Begin("##FishClockOverlay", &IsWindowVisible, flags))
         {
             const ImVec2 buttonSize(28.0f, 28.0f);
+            const float initialX = ImGui::GetCursorPosX();
             const float initialY = ImGui::GetCursorPosY();
+            const ImVec2 textSize = IsTextVisible ? ImGui::CalcTextSize(DisplayText.c_str()) : ImVec2(0.0f, 0.0f);
+            const float rowHeight = buttonSize.y > textSize.y ? buttonSize.y : textSize.y;
+            const float buttonY = initialY + ((rowHeight - buttonSize.y) * 0.5f);
+            const float textY = initialY + ((rowHeight - textSize.y) * 0.5f);
+
+            ImGui::SetCursorPos(ImVec2(initialX, buttonY));
+            const ImVec2 imageMin = ImGui::GetCursorScreenPos();
             if (ToggleTexture != nullptr && ToggleTexture->Resource != nullptr)
             {
-                if (ImGui::ImageButton(ToggleTexture->Resource, buttonSize))
+                ImGui::InvisibleButton("##FishClockToggle", buttonSize);
+                ImGui::GetWindowDrawList()->AddImage(
+                    ToggleTexture->Resource,
+                    imageMin,
+                    ImVec2(imageMin.x + buttonSize.x, imageMin.y + buttonSize.y),
+                    ImVec2(0.0f, 0.0f),
+                    ImVec2(1.0f, 1.0f),
+                    IM_COL32_WHITE);
+
+                if (ImGui::IsItemClicked())
                 {
                     IsTextVisible = !IsTextVisible;
                     SaveSettings();
@@ -675,6 +692,7 @@ namespace
             }
             else
             {
+                ImGui::SetCursorPos(ImVec2(initialX, buttonY));
                 if (ImGui::Button("><", buttonSize))
                 {
                     IsTextVisible = !IsTextVisible;
@@ -685,9 +703,15 @@ namespace
             if (IsTextVisible)
             {
                 ImGui::SameLine();
-                const float textHeight = ImGui::GetTextLineHeight();
-                ImGui::SetCursorPosY(initialY + ((buttonSize.y - textHeight) * 0.5f));
+                ImGui::SetCursorPosY(textY);
                 ImGui::TextColored(DisplayColor, "%s", DisplayText.c_str());
+            }
+
+            const float currentY = ImGui::GetCursorPosY();
+            const float rowBottom = initialY + rowHeight;
+            if (currentY < rowBottom)
+            {
+                ImGui::SetCursorPosY(rowBottom);
             }
 
             const bool hovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);
