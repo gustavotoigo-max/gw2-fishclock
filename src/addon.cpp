@@ -586,7 +586,7 @@ namespace
             {
                 state = "DUSK";
                 realMinutesLeft = (1200.0 - currentInGameMinute) / 12.0;
-                DisplayColor = ImVec4(1.0f, 0.34f, 0.18f, 1.0f);
+                DisplayColor = ImVec4(0.95f, 0.70f, 0.42f, 1.0f);
             }
             else
             {
@@ -615,7 +615,7 @@ namespace
             {
                 state = "DUSK";
                 realMinutesLeft = (1260.0 - currentInGameMinute) / 12.0;
-                DisplayColor = ImVec4(1.0f, 0.34f, 0.18f, 1.0f);
+                DisplayColor = ImVec4(0.95f, 0.70f, 0.42f, 1.0f);
             }
             else
             {
@@ -630,7 +630,7 @@ namespace
         DisplayText = region.Label;
         DisplayText += ' ';
         DisplayText += state;
-        DisplayText += " - Restante: ";
+        DisplayText += " - Left: ";
         DisplayText += FormatDuration(realMinutesLeft);
     }
 
