@@ -294,6 +294,7 @@ namespace
     std::string DisplayText = "Loading FishClock...";
     ImVec4 DisplayColor(1.0f, 1.0f, 1.0f, 1.0f);
     bool IsTextVisible = true;
+    int SelectedButtonSizeIndex = 0;
     Texture_t* ToggleTexture = nullptr;
     AddonDefinition_t AddonDefinition{};
 
@@ -317,6 +318,12 @@ namespace
         bool IsCantha;
     };
 
+    struct ButtonSizeOption
+    {
+        const char* Label;
+        float Size;
+    };
+
     constexpr std::array<RegionInfo, 8> Regions{{
         {Region::SeitungProvinceCantha, "Seitung Province (Cantha)", true},
         {Region::NewKainengCityCantha, "New Kaineng City (Cantha)", true},
@@ -329,6 +336,13 @@ namespace
     }};
 
     int SelectedRegionIndex = 0;
+
+    // Tamanhos do botao do peixe. O primeiro preserva o tamanho original do addon.
+    constexpr std::array<ButtonSizeOption, 3> ButtonSizes{{
+        {"Small", 28.0f},
+        {"Medium", 38.0f},
+        {"Large", 48.0f},
+    }};
 
     // Nexus fornece o contexto do ImGui. O addon precisa seleciona-lo antes de desenhar.
     void ConfigureImGui()
@@ -411,6 +425,16 @@ namespace
         return Regions[static_cast<size_t>(SelectedRegionIndex)];
     }
 
+    const ButtonSizeOption& GetSelectedButtonSize()
+    {
+        if (SelectedButtonSizeIndex < 0 || SelectedButtonSizeIndex >= static_cast<int>(ButtonSizes.size()))
+        {
+            SelectedButtonSizeIndex = 0;
+        }
+
+        return ButtonSizes[static_cast<size_t>(SelectedButtonSizeIndex)];
+    }
+
     // Usa a pasta propria do addon dentro do Nexus para manter settings fora da pasta do jogo.
     std::filesystem::path GetSettingsPath()
     {
@@ -428,7 +452,7 @@ namespace
         return std::filesystem::path(directory) / "settings.ini";
     }
 
-    // Salva preferencias simples: regiao, posicao, janela visivel e texto visivel.
+    // Salva preferencias simples: regiao, posicao, visibilidade e tamanho do botao.
     void SaveSettings()
     {
         const std::filesystem::path path = GetSettingsPath();
@@ -456,6 +480,7 @@ namespace
         file << WindowPosition.x << ' ' << WindowPosition.y << '\n';
         file << (IsWindowVisible ? 1 : 0) << '\n';
         file << (IsTextVisible ? 1 : 0) << '\n';
+        file << SelectedButtonSizeIndex << '\n';
     }
 
     // Carrega preferencias salvas e aplica valores padrao quando o arquivo ainda nao existe.
@@ -479,10 +504,19 @@ namespace
         file >> WindowPosition.x >> WindowPosition.y;
         file >> visible;
         file >> textVisible;
+        if (!(file >> SelectedButtonSizeIndex))
+        {
+            SelectedButtonSizeIndex = 0;
+        }
 
         if (SelectedRegionIndex < 0 || SelectedRegionIndex >= static_cast<int>(Regions.size()))
         {
             SelectedRegionIndex = 0;
+        }
+
+        if (SelectedButtonSizeIndex < 0 || SelectedButtonSizeIndex >= static_cast<int>(ButtonSizes.size()))
+        {
+            SelectedButtonSizeIndex = 0;
         }
 
         IsWindowVisible = visible != 0;
@@ -629,6 +663,27 @@ namespace
             ImGui::EndCombo();
         }
 
+        const char* buttonSizePreview = GetSelectedButtonSize().Label;
+        if (ImGui::BeginCombo("Fish button size", buttonSizePreview))
+        {
+            for (int index = 0; index < static_cast<int>(ButtonSizes.size()); ++index)
+            {
+                const bool selected = index == SelectedButtonSizeIndex;
+                if (ImGui::Selectable(ButtonSizes[static_cast<size_t>(index)].Label, selected))
+                {
+                    SelectedButtonSizeIndex = index;
+                    SaveSettings();
+                }
+
+                if (selected)
+                {
+                    ImGui::SetItemDefaultFocus();
+                }
+            }
+
+            ImGui::EndCombo();
+        }
+
         ImGui::TextUnformatted("Hold Ctrl and drag the FishClock window to move it.");
 
         if (ImGui::Button("Reset position"))
@@ -681,7 +736,8 @@ namespace
         if (ImGui::Begin("##FishClockOverlay", &IsWindowVisible, flags))
         {
             // Calcula manualmente a linha para manter icone e texto centralizados verticalmente.
-            const ImVec2 buttonSize(28.0f, 28.0f);
+            const float selectedButtonSize = GetSelectedButtonSize().Size;
+            const ImVec2 buttonSize(selectedButtonSize, selectedButtonSize);
             const float initialX = ImGui::GetCursorPosX();
             const float initialY = ImGui::GetCursorPosY();
             const ImVec2 textSize = IsTextVisible ? ImGui::CalcTextSize(DisplayText.c_str()) : ImVec2(0.0f, 0.0f);
@@ -806,7 +862,7 @@ extern "C" __declspec(dllexport) AddonDefinition_t* GetAddonDef()
     AddonDefinition.Signature = addon::Signature;
     AddonDefinition.APIVersion = NEXUS_API_VERSION;
     AddonDefinition.Name = addon::Name;
-    AddonDefinition.Version = AddonVersion_t{1, 0, 2, 0};
+    AddonDefinition.Version = AddonVersion_t{1, 0, 3, 0};
     AddonDefinition.Author = addon::Author;
     AddonDefinition.Description = addon::Description;
     AddonDefinition.Load = AddonLoad;

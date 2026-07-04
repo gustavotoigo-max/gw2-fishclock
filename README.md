@@ -11,6 +11,7 @@ It is useful for players working on fishing collections and achievements, especi
 - Lets the player choose the region from the Nexus addon settings.
 - Displays a small draggable overlay with a fish button.
 - Clicking the fish button hides or shows the timer text.
+- Offers three fish button sizes.
 
 ## Installation
 
@@ -53,4 +54,4 @@ build/msvc-release/bin/Release/fish_clock.dll
 
 ## Version
 
-Current Nexus addon version: `1.0.2.0`.
+Current Nexus addon version: `1.0.3.0`.
