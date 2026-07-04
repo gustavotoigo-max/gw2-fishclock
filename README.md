@@ -1,53 +1,56 @@
 # FishClock
 
-Addon para [Nexus](https://raidcore.gg/Nexus) no **Guild Wars 2** que mostra o estado de pesca da regiao selecionada e quanto tempo falta para a proxima transicao de dia/noite/dawn/dusk.
+FishClock is a [Nexus](https://raidcore.gg/Nexus) addon for **Guild Wars 2** that shows the current day, night, dawn, or dusk state for selected fishing regions in Tyria and Cantha.
 
-## O que vem pronto
+It is useful for players working on fishing collections and achievements, especially anyone chasing the title **Cod Swimming Amongst Mere Minnows**.
 
-- `src/addon.cpp` com `GetAddonDef`, `Load`, `Unload`, render callback e options callback.
-- `include/shared.hpp` com metadados do FishClock.
-- `CMakeLists.txt` para gerar uma DLL x64.
-- `CMakePresets.json` com presets Debug e Release para Visual Studio 2022.
-- `build.ps1` para configurar e compilar via PowerShell.
-- Submodules para Nexus API e Dear ImGui.
+## Features
 
-## Uso
+- Shows the selected map/region, current period, and time remaining until the next transition.
+- Supports Tyria and Cantha fishing time cycles.
+- Lets the player choose the region from the Nexus addon settings.
+- Displays a small draggable overlay with a fish button.
+- Clicking the fish button hides or shows the timer text.
 
-1. Abra as configuracoes do addon no Nexus.
-2. Escolha a regiao em `Map to monitor`.
-3. O overlay mostra o estado atual e o tempo restante.
-4. Segure `Ctrl` e arraste o overlay para reposicionar.
+## Installation
 
-## Preparar o repositorio
+1. Download `fish_clock.dll` from the latest release.
+2. Place it in your Guild Wars 2 Nexus addons folder.
+3. Load FishClock from Nexus.
 
-Ao clonar este template, traga os submodules:
+## Usage
+
+1. Open the FishClock settings in Nexus.
+2. Choose the region in `Map to monitor`.
+3. Hold `Ctrl` and drag the overlay to reposition it.
+4. Click the fish icon to hide or show the timer text.
+
+## Build
+
+Clone the repository with submodules:
+
+```powershell
+git clone --recursive https://github.com/gustavotoigo-max/gw2-fishclock.git
+```
+
+Or initialize submodules after cloning:
 
 ```powershell
 git submodule update --init --recursive
 ```
 
-Os diretorios `dependencies/nexus-api` e `dependencies/imgui` sao submodules. O repositorio principal deve versionar apenas `.gitmodules` e os gitlinks, sem copiar os arquivos dessas dependencias para dentro do commit.
-
-## Build
-
-Debug:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File .\build.ps1 -Configuration Debug
-```
-
-Release:
+Build a release DLL:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\build.ps1 -Configuration Release
 ```
 
-A DLL sera gerada em:
+The DLL is generated at:
 
 ```text
 build/msvc-release/bin/Release/fish_clock.dll
 ```
 
-## Logica de tempo
+## Version
 
-O FishClock calcula o ciclo diretamente a partir do horario UTC, igual ao addon original do Blish HUD. Nao ha consulta externa: o ciclo de Tyria usa uma janela de 2 horas reais convertida para 24 horas in-game.
+Current Nexus addon version: `1.0.1.0`.

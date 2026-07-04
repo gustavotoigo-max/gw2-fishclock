@@ -581,7 +581,7 @@ namespace
         DisplayText = region.Label;
         DisplayText += ' ';
         DisplayText += state;
-        DisplayText += " - Left: ";
+        DisplayText += " - Restante: ";
         DisplayText += FormatDuration(realMinutesLeft);
     }
 
@@ -783,13 +783,13 @@ extern "C" __declspec(dllexport) AddonDefinition_t* GetAddonDef()
     AddonDefinition.Signature = addon::Signature;
     AddonDefinition.APIVersion = NEXUS_API_VERSION;
     AddonDefinition.Name = addon::Name;
-    AddonDefinition.Version = AddonVersion_t{0, 1, 0, 0};
+    AddonDefinition.Version = AddonVersion_t{1, 0, 1, 0};
     AddonDefinition.Author = addon::Author;
     AddonDefinition.Description = addon::Description;
     AddonDefinition.Load = AddonLoad;
     AddonDefinition.Unload = AddonUnload;
     AddonDefinition.Flags = AF_None;
-    AddonDefinition.Provider = UP_None;
+    AddonDefinition.Provider = UP_GitHub;
     AddonDefinition.UpdateLink = addon::UpdateLink;
 
     return &AddonDefinition;
