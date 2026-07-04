@@ -651,15 +651,15 @@ namespace
         const bool ctrlDown = ImGui::GetIO().KeyCtrl;
 
         ImGui::SetNextWindowPos(WindowPosition, ImGuiCond_Always);
-        ImGui::SetNextWindowBgAlpha(0.35f);
-
         ImGuiWindowFlags flags =
             ImGuiWindowFlags_NoTitleBar |
             ImGuiWindowFlags_NoResize |
             ImGuiWindowFlags_AlwaysAutoResize |
-            ImGuiWindowFlags_NoSavedSettings;
+            ImGuiWindowFlags_NoSavedSettings |
+            ImGuiWindowFlags_NoBackground;
 
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8.0f, 5.0f));
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
 
         if (ImGui::Begin("##FishClockOverlay", &IsWindowVisible, flags))
         {
@@ -739,7 +739,7 @@ namespace
         }
 
         ImGui::End();
-        ImGui::PopStyleVar();
+        ImGui::PopStyleVar(2);
     }
 
     void AddonLoad(AddonAPI_t* api)
