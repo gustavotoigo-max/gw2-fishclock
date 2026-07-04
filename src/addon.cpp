@@ -1,5 +1,5 @@
 #define FISHCLOCK_DIAGNOSTIC_LOAD_ONLY 0
-#define FISHCLOCK_DIAGNOSTIC_CALLBACK_ONLY 1
+#define FISHCLOCK_DIAGNOSTIC_CALLBACK_ONLY 0
 #define FISHCLOCK_DIAGNOSTIC_RENDER_ONLY 0
 
 #if FISHCLOCK_DIAGNOSTIC_LOAD_ONLY
@@ -163,6 +163,20 @@ namespace
             return;
         }
 
+        if (addon::Api->ImguiMalloc != nullptr && addon::Api->ImguiFree != nullptr)
+        {
+            ImGui::SetAllocatorFunctions(
+                reinterpret_cast<void* (*)(size_t, void*)>(addon::Api->ImguiMalloc),
+                reinterpret_cast<void (*)(void*, void*)>(addon::Api->ImguiFree));
+        }
+
+        if (addon::Api->ImguiMalloc != nullptr && addon::Api->ImguiFree != nullptr)
+        {
+            ImGui::SetAllocatorFunctions(
+                reinterpret_cast<void* (*)(size_t, void*)>(addon::Api->ImguiMalloc),
+                reinterpret_cast<void (*)(void*, void*)>(addon::Api->ImguiFree));
+        }
+
         ImGui::SetCurrentContext(static_cast<ImGuiContext*>(addon::Api->ImguiContext));
     }
 
@@ -312,6 +326,13 @@ namespace
         {
             addon::Log(LOGL_WARNING, "ImguiContext unavailable");
             return;
+        }
+
+        if (addon::Api->ImguiMalloc != nullptr && addon::Api->ImguiFree != nullptr)
+        {
+            ImGui::SetAllocatorFunctions(
+                reinterpret_cast<void* (*)(size_t, void*)>(addon::Api->ImguiMalloc),
+                reinterpret_cast<void (*)(void*, void*)>(addon::Api->ImguiFree));
         }
 
         ImGui::SetCurrentContext(static_cast<ImGuiContext*>(addon::Api->ImguiContext));
