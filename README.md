@@ -53,4 +53,4 @@ build/msvc-release/bin/Release/fish_clock.dll
 
 ## Version
 
-Current Nexus addon version: `1.0.1.0`.
+Current Nexus addon version: `1.0.2.0`.

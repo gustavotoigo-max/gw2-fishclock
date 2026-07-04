@@ -2,6 +2,8 @@
 #define FISHCLOCK_DIAGNOSTIC_CALLBACK_ONLY 0
 #define FISHCLOCK_DIAGNOSTIC_RENDER_ONLY 0
 
+// Blocos de diagnostico usados apenas durante investigacao de crash.
+// Todos ficam desativados na build normal do addon.
 #if FISHCLOCK_DIAGNOSTIC_LOAD_ONLY
 
 #include "shared.hpp"
@@ -153,6 +155,7 @@ namespace addon
 
 namespace
 {
+    // Estado compartilhado do overlay e das configuracoes do addon.
     bool IsWindowVisible = true;
     AddonDefinition_t AddonDefinition{};
 
@@ -294,6 +297,7 @@ namespace
     Texture_t* ToggleTexture = nullptr;
     AddonDefinition_t AddonDefinition{};
 
+    // Regioes suportadas pelo relogio. IsCantha separa os ciclos de Cantha e Tyria.
     enum class Region : int
     {
         SeitungProvinceCantha = 0,
@@ -326,6 +330,7 @@ namespace
 
     int SelectedRegionIndex = 0;
 
+    // Nexus fornece o contexto do ImGui. O addon precisa seleciona-lo antes de desenhar.
     void ConfigureImGui()
     {
         if (addon::Api == nullptr || addon::Api->ImguiContext == nullptr)
@@ -344,6 +349,7 @@ namespace
         ImGui::SetCurrentContext(static_cast<ImGuiContext*>(addon::Api->ImguiContext));
     }
 
+    // Recupera o modulo da DLL para carregar recursos embutidos, como o icone do peixe.
     HMODULE GetAddonModule()
     {
         HMODULE module = nullptr;
@@ -358,6 +364,7 @@ namespace
         return module;
     }
 
+    // Carrega a textura do botao. A API do Nexus pode devolver a textura alguns frames depois.
     void LoadTexture()
     {
         if (addon::Api == nullptr)
@@ -393,6 +400,7 @@ namespace
         }
     }
 
+    // Garante que o indice salvo em disco sempre aponta para uma regiao valida.
     const RegionInfo& GetSelectedRegion()
     {
         if (SelectedRegionIndex < 0 || SelectedRegionIndex >= static_cast<int>(Regions.size()))
@@ -403,6 +411,7 @@ namespace
         return Regions[static_cast<size_t>(SelectedRegionIndex)];
     }
 
+    // Usa a pasta propria do addon dentro do Nexus para manter settings fora da pasta do jogo.
     std::filesystem::path GetSettingsPath()
     {
         if (addon::Api == nullptr || addon::Api->Paths_GetAddonDirectory == nullptr)
@@ -419,6 +428,7 @@ namespace
         return std::filesystem::path(directory) / "settings.ini";
     }
 
+    // Salva preferencias simples: regiao, posicao, janela visivel e texto visivel.
     void SaveSettings()
     {
         const std::filesystem::path path = GetSettingsPath();
@@ -448,6 +458,7 @@ namespace
         file << (IsTextVisible ? 1 : 0) << '\n';
     }
 
+    // Carrega preferencias salvas e aplica valores padrao quando o arquivo ainda nao existe.
     void LoadSettings()
     {
         const std::filesystem::path path = GetSettingsPath();
@@ -478,6 +489,7 @@ namespace
         IsTextVisible = textVisible != 0;
     }
 
+    // O ciclo de dia/noite do GW2 e derivado do horario UTC, sem consultar memoria do jogo.
     std::tm GetUtcNow()
     {
         const auto now = std::chrono::system_clock::now();
@@ -488,6 +500,7 @@ namespace
         return utc;
     }
 
+    // Converte minutos reais restantes em texto MM:SS para exibir no overlay.
     std::string FormatDuration(double realMinutes)
     {
         int totalSeconds = static_cast<int>(std::ceil(realMinutes * 60.0));
@@ -504,6 +517,7 @@ namespace
         return buffer;
     }
 
+    // Atualiza o periodo atual da regiao selecionada e o tempo ate a proxima troca.
     void UpdateFishClock()
     {
         const RegionInfo& region = GetSelectedRegion();
@@ -519,6 +533,7 @@ namespace
         const char* state = "UNKNOWN";
         double realMinutesLeft = 0.0;
 
+        // Cantha usa uma janela de noite diferente da janela padrao de Tyria.
         if (region.IsCantha)
         {
             if (currentInGameMinute >= 420.0 && currentInGameMinute < 480.0)
@@ -585,6 +600,7 @@ namespace
         DisplayText += FormatDuration(realMinutesLeft);
     }
 
+    // Desenha a aba de configuracao do addon dentro da janela de opcoes do Nexus.
     void RenderOptions()
     {
         ConfigureImGui();
@@ -622,6 +638,7 @@ namespace
         }
     }
 
+    // Desenha o overlay transparente com o peixe clicavel e, opcionalmente, o texto do timer.
     void Render()
     {
         ConfigureImGui();
@@ -663,6 +680,7 @@ namespace
 
         if (ImGui::Begin("##FishClockOverlay", &IsWindowVisible, flags))
         {
+            // Calcula manualmente a linha para manter icone e texto centralizados verticalmente.
             const ImVec2 buttonSize(28.0f, 28.0f);
             const float initialX = ImGui::GetCursorPosX();
             const float initialY = ImGui::GetCursorPosY();
@@ -675,6 +693,7 @@ namespace
             const ImVec2 imageMin = ImGui::GetCursorScreenPos();
             if (ToggleTexture != nullptr && ToggleTexture->Resource != nullptr)
             {
+                // InvisibleButton cria a area clicavel enquanto a imagem e desenhada manualmente.
                 ImGui::InvisibleButton("##FishClockToggle", buttonSize);
                 ImGui::GetWindowDrawList()->AddImage(
                     ToggleTexture->Resource,
@@ -716,6 +735,7 @@ namespace
 
             const bool hovered = ImGui::IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem);
 
+            // Arrastar exige Ctrl para evitar mover o overlay durante cliques normais no jogo.
             if (!IsDragging && hovered && ctrlDown && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
             {
                 IsDragging = true;
@@ -742,6 +762,7 @@ namespace
         ImGui::PopStyleVar(2);
     }
 
+    // Ponto de entrada chamado pelo Nexus quando a DLL e carregada.
     void AddonLoad(AddonAPI_t* api)
     {
         addon::Api = api;
@@ -761,6 +782,7 @@ namespace
         addon::Log(LOGL_INFO, "loaded");
     }
 
+    // Limpa callbacks e persiste configuracoes quando o addon e descarregado.
     void AddonUnload()
     {
         if (addon::Api != nullptr && addon::Api->GUI_Deregister != nullptr)
@@ -778,12 +800,13 @@ namespace
     }
 }
 
+// Funcao exportada que entrega ao Nexus os metadados e callbacks do addon.
 extern "C" __declspec(dllexport) AddonDefinition_t* GetAddonDef()
 {
     AddonDefinition.Signature = addon::Signature;
     AddonDefinition.APIVersion = NEXUS_API_VERSION;
     AddonDefinition.Name = addon::Name;
-    AddonDefinition.Version = AddonVersion_t{1, 0, 1, 0};
+    AddonDefinition.Version = AddonVersion_t{1, 0, 2, 0};
     AddonDefinition.Author = addon::Author;
     AddonDefinition.Description = addon::Description;
     AddonDefinition.Load = AddonLoad;
